@@ -22,6 +22,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('User')
 @Controller('user')
@@ -29,6 +30,9 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('signup')
+  @Throttle({
+    default: { limit: 5 },
+  })
   @ApiOperation({ summary: 'User signup' })
   @ApiBody({ type: SignupDto })
   @ApiResponse({ status: 201, description: 'User registered successfully' })
@@ -54,6 +58,9 @@ export class UserController {
   }
 
   @Post('login')
+  @Throttle({
+    default: { limit: 3 },
+  })
   @ApiOperation({ summary: 'User login' })
   @ApiBody({ type: LoginDto })
   @ApiResponse({ status: 200, description: 'Login successful' })

@@ -6,6 +6,8 @@ import { UserModule } from './user/user.module';
 import { EmailService } from './email/email.service';
 import * as Joi from 'joi';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,6 +22,15 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
       useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('MONGO_URI'),
       }),
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+      errorMessage: 'Too many requests, please try again later.',
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -41,6 +52,13 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
     }),
     UserModule,
   ],
-  providers: [EmailService, JwtStrategy],
+  providers: [
+    EmailService,
+    JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

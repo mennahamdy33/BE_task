@@ -74,7 +74,6 @@ export class UserService {
     }
 
     if (!user.isEmailVerified) {
-
       throw new UnauthorizedException('User email not verified');
     }
 
