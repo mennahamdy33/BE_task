@@ -74,9 +74,9 @@ export class UserService {
     }
 
     if (!user.isEmailVerified) {
-      throw new UnauthorizedException(
-        'Please verify your email before signing in.',
-      );
+      console.log('User email not verified');
+
+      throw new UnauthorizedException('User email not verified');
     }
 
     const passwordValid = await bcrypt.compare(password, user.password);
